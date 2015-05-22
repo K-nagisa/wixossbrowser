@@ -1,5 +1,7 @@
 package net.poringsoft.wixossbrowser.data;
 
+import android.os.Debug;
+
 import net.poringsoft.wixossbrowser.utils.ImageDownload;
 import net.poringsoft.wixossbrowser.utils.KanamojiCharUtils;
 import net.poringsoft.wixossbrowser.utils.PSDebug;
@@ -152,25 +154,19 @@ public class CardHtmlParser {
 
             //FAQ
             ArrayList<CardFaqInfo> faqList = new ArrayList<CardFaqInfo>();
-            Elements faqElements = doc.select("div.card_FAQ p");
+            Elements faqElements = doc.select("div.card_FAQ dl");
             for (Element e : faqElements)
             {
                 CardFaqInfo faqInfo = new CardFaqInfo();
-                Elements questionList = e.select("span.card_ruleFAQ_q");
-                for (Element question : questionList)
-                {
-                    faqInfo.setQuestion(question.text().trim());
-                    break;  //最初の項目のみセットする
+                for( Element child : e.children()) {
+                    if(child.tagName().equals("dd")) {
+                        faqInfo = new CardFaqInfo();
+                        faqInfo.setQuestion(child.text().trim());
+                    }else if(child.tagName().equals("dt")){
+                        faqInfo.setAnswer(child.text().trim());
+                        faqList.add(faqInfo);
+                    }
                 }
-
-                Elements answerList = e.select("span.card_ruleFAQ_a");
-                for (Element answer : answerList)
-                {
-                    faqInfo.setAnswer(answer.text().trim());
-                    break;  //最初の項目のみセットする
-                }
-
-                faqList.add(faqInfo);
             }
             cardInfo.setFaqList(faqList);
         }
